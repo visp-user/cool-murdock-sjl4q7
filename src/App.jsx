@@ -1,24 +1,35 @@
-import React, { useRef, useState } from "react";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { COLUMN_NAMES } from "./constants";
-import { tasks } from "./tasks";
+import React, { useRef, useState } from 'react';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { COLUMN_NAMES } from './constants';
+import { tasks } from './tasks';
+import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
+import './assets/styles/App.css';
+import { Link } from '@mui/material';
 
-import "./assets/styles/App.css";
+const StyledTooltip = styled(({ className, ...props }) => {
+  return <Tooltip {...props} classes={{ popper: className }} />;
+})`
+  & .MuiTooltip-tooltip {
+    background: yellow;
+    color: black;
+  }
+`;
 
 const MovableItem = ({
   name,
   index,
   currentColumnName,
   moveCardHandler,
-  setItems
+  setItems,
 }) => {
   const changeItemColumn = (currentItem, columnName) => {
     setItems((prevState) => {
       return prevState.map((e) => {
         return {
           ...e,
-          column: e.name === currentItem.name ? columnName : e.column
+          column: e.name === currentItem.name ? columnName : e.column,
         };
       });
     });
@@ -27,7 +38,7 @@ const MovableItem = ({
   const ref = useRef(null);
 
   const [, drop] = useDrop({
-    accept: "Our first type",
+    accept: 'Our first type',
     hover(item, monitor) {
       if (!ref.current) {
         return;
@@ -68,11 +79,11 @@ const MovableItem = ({
       // to avoid expensive index searches.
       console.log(`item.index ${item.index}, hoverIndex ${hoverIndex}`);
       // item.index = hoverIndex;
-    }
+    },
   });
 
   const [{ isDragging }, drag] = useDrag({
-    item: { index, name, currentColumnName, type: "Our first type" },
+    item: { index, name, currentColumnName, type: 'Our first type' },
     end: (item, monitor) => {
       const dropResult = monitor.getDropResult();
 
@@ -98,28 +109,41 @@ const MovableItem = ({
       }
     },
     collect: (monitor) => ({
-      isDragging: monitor.isDragging()
-    })
+      isDragging: monitor.isDragging(),
+    }),
   });
 
   const opacity = isDragging ? 0.4 : 1;
 
   drag(drop(ref));
 
+  const StyledTooltipFwdRef = React.forwardRef((props, ref) => {
+    return <StyledTooltip {...props} ref={ref} />;
+  });
+  const LinkFwdRef = React.forwardRef((props, ref) => {
+    return <Link {...props} ref={ref} />;
+  });
   return (
-    <div ref={ref} className="movable-item" style={{ opacity }}>
-      {name}
+    <div ref={ref} className='movable-item' style={{ opacity }}>
+      <StyledTooltip
+        title='I am navy'
+        // sx={{ background: 'red' }}
+      >
+        <Link href='https://geeksforgeeks.org' target='_blank' ref={ref}>
+          {name}
+        </Link>
+      </StyledTooltip>
     </div>
   );
 };
 
 const Column = ({ children, className, title }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: "Our first type",
+    accept: 'Our first type',
     drop: () => ({ name: title }),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
-      canDrop: monitor.canDrop()
+      canDrop: monitor.canDrop(),
     }),
     // Override monitor.canDrop() function
     canDrop: (item) => {
@@ -134,18 +158,18 @@ const Column = ({ children, className, title }) => {
           (title === IN_PROGRESS || title === DONE)) ||
         (currentColumnName === DONE && title === AWAITING_REVIEW)
       );
-    }
+    },
   });
 
   const getBackgroundColor = () => {
     if (isOver) {
       if (canDrop) {
-        return "rgb(188,251,255)";
+        return 'rgb(188,251,255)';
       } else if (!canDrop) {
-        return "rgb(255,188,188)";
+        return 'rgb(255,188,188)';
       }
     } else {
-      return "";
+      return '';
     }
   };
 
@@ -200,23 +224,23 @@ export const App = () => {
   const { DO_IT, IN_PROGRESS, AWAITING_REVIEW, DONE } = COLUMN_NAMES;
 
   return (
-    <div className="container">
+    <div className='container'>
       <DndProvider backend={HTML5Backend}>
-        <Column title={DO_IT} className="column do-it-column">
+        <Column title={DO_IT} className='column do-it-column'>
           {returnItemsForColumn(DO_IT)}
         </Column>
         {/* <Column title={IN_PROGRESS} className="column in-progress-column">
-          {returnItemsForColumn(IN_PROGRESS)}
-        </Column>
-        <Column
-          title={AWAITING_REVIEW}
-          className="column awaiting-review-column"
-        >
+{returnItemsForColumn(IN_PROGRESS)}
+</Column>
+<Column
+title={AWAITING_REVIEW}
+className="column awaiting-review-column"
+>
           {returnItemsForColumn(AWAITING_REVIEW)}
-        </Column>
-        <Column title={DONE} className="column done-column">
-          {returnItemsForColumn(DONE)}
-        </Column> */}
+</Column>
+<Column title={DONE} className="column done-column">
+{returnItemsForColumn(DONE)}
+</Column> */}
       </DndProvider>
     </div>
   );

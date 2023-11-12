@@ -1,7 +1,7 @@
 @font-face {
-  font-family: "DavidLibre";
-  src: local("DavidLibre"),
-    url(../fonts/DavidLibre-Regular.ttf) format("truetype");
+  font-family: 'DavidLibre';
+  src: local('DavidLibre'),
+    url(../fonts/DavidLibre-Regular.ttf) format('truetype');
 }
 
 p {
